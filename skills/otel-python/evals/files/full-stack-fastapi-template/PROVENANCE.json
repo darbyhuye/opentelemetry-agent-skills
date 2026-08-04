@@ -1,0 +1,28 @@
+{
+  "source_repository": "https://github.com/fastapi/full-stack-fastapi-template",
+  "source_commit": "750d3d0bc6dfece4dec2d6ef8c3ff7e64f72545d",
+  "source_tree": "3f6c342a295e52e9db56700fde30a5e7a00d2d4b",
+  "license": "MIT",
+  "selection": "Minimal backend-only FastAPI, SQLModel, psycopg, httpx, and stdlib logging fixture needed for static instrumentation planning evals.",
+  "excluded": [
+    "frontend and generated clients",
+    "deployment and compose files",
+    "environment files and secrets",
+    "dependency lock files",
+    "repository-local agent instructions",
+    "unrelated API routes, scripts, and tests"
+  ],
+  "files_sha256": {
+    "LICENSE": "0bd4e76cdd06ab24cce2de5e74f490920897f90a22ad35e8403ed006d4560f48",
+    "backend/Dockerfile": "f6399822e16d9bfa11d2d1879db88741d60eef69c682f779e1b2aa101d76e7ef",
+    "backend/app/api/deps.py": "84c30966b3b862c643009c14146d1924dec50be5b0efb9f56798e2fda5189daa",
+    "backend/app/api/main.py": "a3de7c6f3e910194974f41bcdf801f062e9e3ac80ed34bfa25917d3864f98896",
+    "backend/app/api/routes/items.py": "7f0fa55d1f7b02188c4abd4f88aa6db92fe03de38258b765ed050ec72032b410",
+    "backend/app/core/config.py": "d3e51c29fb866a3f361278cb2a93a87412a8ee9397a962f6e7e499af5e326090",
+    "backend/app/core/db.py": "5efaacfa9f6c3f075a7755c72e071d7b3b46c7873f24822db33f26d699557967",
+    "backend/app/main.py": "14a7bf65fbdfdb1e09680b4efa71dabc78a74aee908df7f79e8ddc22024f4e22",
+    "backend/app/models.py": "1b7384d0dc779cca9ebc9d2b05ccd1864988c2043a3692384ff7a731819050f0",
+    "backend/pyproject.toml": "4004258d7f8bf6ee3021336f64d5cadfc9ebb4f178e0a878f71eeef32ba788ab",
+    "backend/tests/conftest.py": "ccccd7fa1092256e889fcf88c5fbc3415a52e2964fd66cb775722dbe7a6dd763"
+  }
+}
