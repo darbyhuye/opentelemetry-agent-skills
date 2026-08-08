@@ -1,0 +1,17 @@
+{
+  "upstream": "https://github.com/dotnet-architecture/eShopOnWeb",
+  "commit": "4da8212117e87d808d4bbc7da6286fd2147ce606",
+  "license": "MIT",
+  "sanitization": "Minimal synthetic derivative preserving the pinned application's .NET 8 central package management, ASP.NET Core, Entity Framework Core, HttpClient, and ILogger boundaries. Authentication, secrets, infrastructure, database seeding, UI, tests, repository instructions, and unrelated dependencies are omitted.",
+  "derived_from": [
+    "Directory.Packages.props",
+    "src/PublicApi/PublicApi.csproj",
+    "src/PublicApi/Program.cs"
+  ],
+  "files_sha256": {
+    "Directory.Packages.props": "88acaf7dc3d35f421ac2ddd493dbf1745fbae2c3a876afd59c2acba35100c3ea",
+    "LICENSE": "baebca0309090f4eca1b7a82c836cc91e48b2b92139c2280fb0ff69af922c2ae",
+    "src/PublicApi/Program.cs": "a0b001a3a82805d02b6e50623d949b6c67a9d267019d84bfb7494da7fd98625d",
+    "src/PublicApi/PublicApi.csproj": "035ae9d2317db8950e28f6c1adf763153b2879188e75ff2a26da9333a0bb6475"
+  }
+}
