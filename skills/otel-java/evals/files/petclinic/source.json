@@ -1,0 +1,28 @@
+{
+  "repository": "https://github.com/spring-projects/spring-petclinic",
+  "commit": "88e37c15cf6fc8490b01bc3e8e2c800cec1ac272",
+  "license": "Apache-2.0",
+  "retrieved": "2026-08-04",
+  "files": [
+    {
+      "path": "pom.xml",
+      "git_blob_sha": "db5b9f78a5370deae4ace1192d5a8acf4b140d8e",
+      "size": 15955
+    },
+    {
+      "path": "src/main/resources/application.properties",
+      "git_blob_sha": "d000edb6a50e07bd7ac2c70f8768d1f776ad3a3b",
+      "size": 981
+    },
+    {
+      "path": "src/main/java/org/springframework/samples/petclinic/PetClinicApplication.java",
+      "git_blob_sha": "fa06309959505b0b7bb3cd7bc462e9e42e71b212",
+      "size": 1144
+    },
+    {
+      "path": "src/main/java/org/springframework/samples/petclinic/owner/OwnerController.java",
+      "git_blob_sha": "b4b614559e5d3fc67ff2138ab0e2891b94845cb7",
+      "size": 6264
+    }
+  ]
+}

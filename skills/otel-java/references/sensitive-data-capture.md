@@ -19,6 +19,11 @@ but the raw query string is **on** — any user data in a query string
 (`GET /owners?lastName=Smith`, search terms, tokens in links) is exported verbatim unless
 its parameter name is in the redaction list.
 
+Treat requests to capture `Authorization`, cookies, all servlet parameters, JDBC parameter values,
+or unsanitized SQL as a safety boundary. Refuse a production-ready configuration that enables raw
+capture or disables sanitization. Ask for an allowlisted, data-minimized requirement and prefer
+Collector-side deletion/redaction when application-side controls cannot express it safely.
+
 ## Query-parameter redaction
 
 Values of listed parameter names are replaced with `REDACTED` in `url.query` and `url.full`

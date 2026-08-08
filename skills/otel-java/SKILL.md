@@ -12,25 +12,26 @@ the task; each reference is self-contained.
 
 | File | Use when |
 |---|---|
-| [`references/declarative-setup.md`](references/declarative-setup.md) | Configuring the SDK via declarative YAML: Javaagent activation, Spring Boot Starter, autoconfigure SDK, BOM, agent-only properties, manual instrumentation entry points. |
-| [`references/sensitive-data-capture.md`](references/sensitive-data-capture.md) | What HTTP instrumentation captures by default (query strings ON, headers/params OFF), query-parameter redaction (`sensitive-query-parameters`), header/servlet-parameter capture knobs, SQL sanitization. |
+| [`references/declarative-setup.md`](references/declarative-setup.md) | Choosing a distribution; pinned Javaagent activation; Spring Boot Starter boundaries; manual autoconfigure SDK/BOM dependencies and startup; declarative YAML; validation levels. |
+| [`references/sensitive-data-capture.md`](references/sensitive-data-capture.md) | Reviewing or changing HTTP/JDBC capture, query redaction, servlet/header capture, SQL sanitization, or unsafe requests for raw sensitive values. |
+
+## Safety gate
+
+Before acting on a capture/redaction request, load `references/sensitive-data-capture.md`. If it
+asks for raw authorization/cookie headers, servlet parameters, JDBC parameter values, or disabled
+SQL sanitization, refuse each unsafe action and **do not create or edit a configuration, script, or
+"production-ready" plan that enables any of them**, even as an annotated example. Treat a mixed
+safe/unsafe request as blocked rather than emitting the unsafe subset. Offer allowlisted,
+data-minimized capture or Collector-side deletion/redaction, and state any selected-release
+limitation separately.
 
 ## Sources of Truth
 
-For YAML schema details, fetch the upstream sources listed in the `otel-declarative-config` skill.
-For Java-specific facts:
-
-| Fact | Fetch |
-|---|---|
-| Latest BOM (`opentelemetry-bom`) | `gh api repos/open-telemetry/opentelemetry-java/releases/latest -q '.tag_name'` |
-| Latest Javaagent | `gh api repos/open-telemetry/opentelemetry-java-instrumentation/releases/latest -q '.tag_name'` |
-| SDK declarative-config accepted and preferred `file_format` for a selected BOM tag | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java/<selected-sdk-tag>/sdk-extensions/declarative-config/src/main/java/io/opentelemetry/sdk/autoconfigure/declarativeconfig/OpenTelemetryConfigurationFactory.java` |
-| Javaagent declarative-config docs (current activation flag, supported `file_format`) | `WebFetch https://opentelemetry.io/docs/zero-code/java/agent/declarative-configuration/` |
-| Javaagent declarative-config smoke fixture (parser truth for selected agent tag) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/smoke-tests/src/test/resources/declarative-config.yaml` |
-| Javaagent CHANGELOG (when each schema rc landed) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/CHANGELOG.md` |
-| Spring Boot Starter declarative-config fixture (selected starter tag) | `WebFetch https://raw.githubusercontent.com/open-telemetry/opentelemetry-java-instrumentation/<selected-agent-tag>/smoke-tests-otel-starter/spring-boot-2/src/testDeclarativeConfig/resources/application.yaml` |
-| Spring Boot starter docs | `WebFetch https://opentelemetry.io/docs/zero-code/java/spring-boot-starter/` |
-| Per-instrumentation telemetry & config (resolved spans/attributes, metrics, config options, target versions) | `WebFetch https://explorer.opentelemetry.io/data/javaagent/instrumentations/<id>/<id>-<hash>.json` — get `<id>` and the latest `<hash>` from the index (see [below](#what-telemetry-does-an-instrumentation-emit)) |
+For setup/YAML facts, use the selected-release fetch table in
+[`references/declarative-setup.md`](references/declarative-setup.md) and the upstream sources in
+the `otel-declarative-config` skill. For capture/redaction facts, use the source table in
+[`references/sensitive-data-capture.md`](references/sensitive-data-capture.md). For resolved
+per-instrumentation telemetry, use the Explorer flow below.
 
 ## What telemetry does an instrumentation emit?
 
