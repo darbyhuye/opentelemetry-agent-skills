@@ -27,12 +27,12 @@ and version churn:
 
 | Module group | Example modules | Version line |
 |---|---|---|
-| Stable signals (traces, metrics) | `go.opentelemetry.io/otel`, `otel/sdk`, `otel/trace`, `otel/metric`, OTLP trace/metric exporters | **v1.x** (e.g. v1.44.0) |
-| Logs | `otel/log`, `otel/sdk/log`, `otel/exporters/otlp/otlplog/otlploghttp` | **v0.x** (separate, lower line) |
+| Stable signals (traces, metrics) | `go.opentelemetry.io/otel`, `otel/sdk`, `otel/trace`, `otel/metric`, OTLP trace/metric exporters | **v1.x** (snapshot: v1.45.0, verified 2026-08-04) |
+| Logs | `otel/log`, `otel/sdk/log`, `otel/exporters/otlp/otlplog/otlploghttp` | **v0.x** (snapshot: v0.21.0, verified 2026-08-04) |
 | Contrib instrumentation | `contrib/instrumentation/net/http/otelhttp`, `.../otelgrpc` | **v0.x** (separate line, e.g. v0.69.0) |
 | Contrib log bridges | `contrib/bridges/otelslog`, `otelzap`, `otellogrus`, `otellogr` | **v0.x** |
 
-**The trap:** pinning every module to the core version (e.g. `go get go.opentelemetry.io/otel/log@v1.44.0`)
+**The trap:** pinning every module to the core version (e.g. `go get go.opentelemetry.io/otel/log@v1.45.0`)
 fails — log and bridge modules have no v1.x tag. Hand-picking and re-guessing each `@vX`
 is the churn to avoid.
 

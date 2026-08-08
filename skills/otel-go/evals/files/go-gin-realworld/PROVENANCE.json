@@ -1,0 +1,27 @@
+{
+  "repository": "https://github.com/gothinkster/golang-gin-realworld-example-app",
+  "commit": "626c372d259472148d93303f74aa9b9a1cdcef24",
+  "commit_date": "2026-01-03T23:20:54Z",
+  "license": "MIT",
+  "selection": "Production Go sources and module files only; tests, repository instructions, documentation, CI, scripts, API collections, environment examples, and images are excluded.",
+  "files_sha256": {
+    "LICENSE": "b28a11965d2056fe38cf67b5782a7a8ba7cadf8b3c926a688eb3658d6c68bf8b",
+    "articles/doc.go": "f4d11a7b2afc8ce504b5d4a4f614ce848433cc973c9458e064ca6d90202de3f8",
+    "articles/models.go": "0537928c7fbebd2984f6922517c4f259874a3caf4baddab1ca678fa768aae3eb",
+    "articles/routers.go": "cfdcc2a499cff9ecb116a51ee308d54f2beda28b6e9a1795c0bfa20302249db5",
+    "articles/serializers.go": "38739b8857dbfba4ccdbe70c5a3e385ab4c52f5b3dfe3d0296ecd2e45e9a1f9c",
+    "articles/validators.go": "47d165641b7994d2d54263be65b6320ad34779ce8ca0fea3d6aaaed8cd4e9294",
+    "common/database.go": "8ef1321599b811bb45e0401fb5e456d33e9f673655d3017788a13c77b4bb8b41",
+    "common/utils.go": "f9ba4e93189befc222e8c0a91e0bdf6e85189281f4dcb229da908c98547a8230",
+    "doc.go": "0694fcb34213fc55b51a3d77491948caf5fbbf469b44d57ba4e15786cddd1846",
+    "go.mod": "3cc88e056d0d49722d8f97d38c04bce79ae227434b38a2818cc3b45d5ac065de",
+    "go.sum": "b6a9bbe925a48fae1758c5d32e0f2fc8348687f2920db502c4460581837cbb6e",
+    "hello.go": "fedf6af66c1a6a316c41933fc0190603740f9e1a67839ab64e45d8d2ddc3f083",
+    "users/doc.go": "b1e33df224d2c55d71779cd200c003f1a94c34edb9c82f47a08dfe924e281c18",
+    "users/middlewares.go": "5a66322cf8eac30d32c9d7f105ed985ffe36fcddb37c9c4e88b8c32148ffff3b",
+    "users/models.go": "6425bc497f327abcc576c356d4bfe39f1945cde084b3d5e0f5551633e46f22d7",
+    "users/routers.go": "1c32e7481c9e35dfbe1a0ff81c9094c1e3c3033c33667adc83f0988b423848c5",
+    "users/serializers.go": "dc2af226a31259f28e93cdc1af2830e2ef98075bdc3ead18c9ca459c2d934562",
+    "users/validators.go": "60acba16e62cdd000bafcde9e7aeddafac00a2e310946f3bd1b4e376d7a2d358"
+  }
+}

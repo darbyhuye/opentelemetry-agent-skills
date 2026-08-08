@@ -13,6 +13,18 @@ version selection, fetch from the Sources of Truth table in the `otel-go` skill 
 - `attribute.Value.Emit` deprecated (core v1.44.0). Use `attribute.Value.String` instead.
 - `OTEL_EXPERIMENTAL_CONFIG_FILE` is no longer supported by root `otelconf` v0.23.0+ (contrib v1.43.0+). Use `OTEL_CONFIG_FILE`.
 
+## Log value types removed (log v0.21.0; core v1.45.0 release)
+
+- `otel/log` no longer defines `Value`, `KeyValue`, or their constructors. `log.Record.SetBody`
+  accepts `attribute.Value`, and `log.Record.AddAttributes` accepts `attribute.KeyValue`.
+  Replace calls such as `log.StringValue("body")` and `log.String("key", "value")` with
+  `attribute.StringValue("body")` and `attribute.String("key", "value")`.
+
+## HTTP exporter Retry-After handling (core v1.45.0)
+
+- OTLP HTTP exporters now interpret integer `Retry-After` values as seconds and accept HTTP-date
+  values. This fixes v1.44.0 behavior that treated integers as nanoseconds and ignored dates.
+
 ## Removed APIs (instrumentation v0.65.0; contrib v1.40.0 release)
 
 - otelhttp removed `DefaultClient`, `Get`, `Head`, `Post`, `PostForm`, `WithPublicEndpoint`, `WithRouteTag`. Always create a custom client with `otelhttp.NewTransport`.
