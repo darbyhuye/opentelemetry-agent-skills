@@ -1,0 +1,13 @@
+{
+  "name": "declarative-checkout-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "OTEL_CONFIG_FILE=configs/missing.yaml node --require ./instrumentation.cjs app.js"
+  },
+  "dependencies": {
+    "@opentelemetry/auto-instrumentations-node": "0.79.0",
+    "@opentelemetry/sdk-node": "0.221.0",
+    "express": "5.2.1"
+  }
+}

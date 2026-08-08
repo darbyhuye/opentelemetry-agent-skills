@@ -1,0 +1,21 @@
+{
+  "source": "https://github.com/sahat/hackathon-starter",
+  "commit": "fd7d1d34c6fe9899cdd7477f6e0127c29c7841f8",
+  "license": "MIT",
+  "allowlist": {
+    "LICENSE": "3459445443980fbc67520dc25529499ee3ab6f35d332ad7c1866119497c4e440",
+    "app.js": "70747c9b13c0ecec7e5246dcfeea93b25777b1b3501d8f5f75f1065ebea0c79a",
+    "package.json": "2120546352816e6359b5bdc40fcc8a3ae985e773db5864a85c2c4b86850859e5"
+  },
+  "excluded": [
+    "package-lock.json",
+    "AGENTS.md",
+    "CLAUDE.md",
+    ".env.example",
+    "README.md",
+    "test/",
+    "public/",
+    "views/"
+  ],
+  "contamination_check": "At the pinned commit, OpenTelemetry strings occur only in package-lock.json optional LangSmith peer dependencies; that file is excluded."
+}

