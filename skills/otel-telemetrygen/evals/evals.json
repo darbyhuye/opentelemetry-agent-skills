@@ -1,6 +1,6 @@
 {
-  "skill": "otel-telemetrygen",
-  "cases": [
+  "skill_name": "otel-telemetrygen",
+  "evals": [
     {
       "id": "bounded-http-logs-env",
       "prompt": "We use telemetrygen v0.158.0. Give me, but do not run, a reproducible command that sends logs over OTLP/HTTP with trusted TLS to collector.example.test:4318 for 30 seconds at exactly 120 logs/second total using four workers. Set service.name to checkout, the resource attribute deployment.environment.name to staging, and the log-record attribute test.scenario to refund. My shell may already define OTEL_EXPORTER_OTLP_* variables.",

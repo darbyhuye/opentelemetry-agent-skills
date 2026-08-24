@@ -1,8 +1,6 @@
 {
-  "skill": "otel-ottl",
-  "runtime": "Codex CLI",
-  "model": "gpt-5.6-terra",
-  "cases": [
+  "skill_name": "otel-ottl",
+  "evals": [
     {
       "id": "routing-metadata-fallback",
       "prompt": "We run OpenTelemetry Collector contrib v0.158. Route OTLP logs by the X-Tenant header to logs/acme, but malformed or missing headers must not lose telemetry. Provide the relevant YAML and explain the failure behavior.",

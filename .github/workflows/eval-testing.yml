@@ -1,0 +1,139 @@
+name: Eval-testing Skill Evals
+
+# This workflow is deliberately branch-scoped. It evaluates only runnable skill
+# suites changed by eval-testing relative to main; it never evaluates main as the
+# skill-under-test branch.
+on:
+  push:
+    branches:
+      - eval-testing
+    paths:
+      - "skills/**"
+      - ".github/workflows/eval-testing.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: eval-testing-skill-evals
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  eval-changed-skills:
+    if: github.ref_name == 'eval-testing'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: eval-testing
+    env:
+      AGENT_MODEL: ${{ vars.OPENROUTER_EVAL_MODEL || 'openai/gpt-4o-mini' }}
+      JUDGE_MODEL: ${{ vars.OPENROUTER_JUDGE_MODEL || 'openai/gpt-4o-mini' }}
+      EVAL_REPS: ${{ vars.SKILL_EVAL_REPS || '1' }}
+
+    steps:
+      - name: Checkout eval-testing skills
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          path: skills-repo
+          persist-credentials: false
+
+      - name: Check OpenRouter configuration
+        id: harness
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          if [ -z "${OPENROUTER_API_KEY:-}" ]; then
+            echo "available=no" >> "$GITHUB_OUTPUT"
+            echo "OPENROUTER_API_KEY is not configured; skipping paid model evals." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "available=yes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout skills-test-runner
+        if: steps.harness.outputs.available == 'yes'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ollygarden/skills-test-runner
+          ref: ecc4d57325071f8e9f1acba91dd04625bc1b0706
+          path: skills-test-runner
+          ssh-key: ${{ secrets.SKILLS_TEST_RUNNER_DEPLOY_KEY }}
+          persist-credentials: false
+
+      - name: Set up Bun
+        if: steps.harness.outputs.available == 'yes'
+        uses: oven-sh/setup-bun@ecf28ddc73e819eb6fa29df6b34ef8921c743461 # v2.1.3
+
+      - name: Install runner dependencies
+        if: steps.harness.outputs.available == 'yes'
+        working-directory: skills-test-runner
+        run: bun install --frozen-lockfile
+
+      - name: Detect changed skill suites
+        if: steps.harness.outputs.available == 'yes'
+        run: |
+          set -euo pipefail
+          mkdir -p results
+          bun run skills-test-runner/src/github/detect-changed-skills.ts \
+            --repo-root "$GITHUB_WORKSPACE/skills-repo" \
+            --base origin/main \
+            --head HEAD \
+            --skill-root skills \
+            --runner-change-policy skip \
+            --out "$GITHUB_WORKSPACE/results/selection.json" \
+            --paths-only "$GITHUB_WORKSPACE/results/suite-paths.txt"
+          cat results/selection.json
+
+      - name: Restore eval cache
+        if: steps.harness.outputs.available == 'yes'
+        uses: actions/cache@caa296126883cff596d87d8935842f9db880ef25 # v5
+        with:
+          path: .skill-eval-cache
+          key: eval-testing-${{ runner.os }}-${{ hashFiles('skills-test-runner/bun.lock') }}-${{ github.run_id }}
+          restore-keys: |
+            eval-testing-${{ runner.os }}-${{ hashFiles('skills-test-runner/bun.lock') }}-
+            eval-testing-${{ runner.os }}-
+
+      - name: Run changed skill suites
+        if: steps.harness.outputs.available == 'yes'
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          set -euo pipefail
+
+          if [ ! -s results/suite-paths.txt ]; then
+            echo "No changed skills with eval suites were found relative to main." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+
+          status=0
+          while IFS= read -r suite; do
+            [ -n "$suite" ] || continue
+            slug=${suite//\//-}
+            echo "## $suite" >> "$GITHUB_STEP_SUMMARY"
+            set +e
+            bun run skills-test-runner/src/cli.ts "$GITHUB_WORKSPACE/skills-repo/$suite" \
+              --results "$GITHUB_WORKSPACE/results/$slug.json" \
+              --cache-dir "$GITHUB_WORKSPACE/.skill-eval-cache" \
+              --reps "$EVAL_REPS" \
+              --harness openrouter \
+              --model "$AGENT_MODEL" \
+              --judge-model "$JUDGE_MODEL" \
+              2>&1 | tee "$GITHUB_WORKSPACE/results/$slug.log"
+            suite_status=${PIPESTATUS[0]}
+            set -e
+            sed 's/^/    /' "$GITHUB_WORKSPACE/results/$slug.log" >> "$GITHUB_STEP_SUMMARY"
+            echo >> "$GITHUB_STEP_SUMMARY"
+            if [ "$suite_status" -ne 0 ]; then
+              status="$suite_status"
+            fi
+          done < results/suite-paths.txt
+          exit "$status"
+
+      - name: Upload eval results
+        if: always() && steps.harness.outputs.available == 'yes'
+        uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: eval-testing-results-${{ github.sha }}
+          path: results/
+          if-no-files-found: warn
