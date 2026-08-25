@@ -1,16 +1,25 @@
 name: Eval-testing Skill Evals
 
-# This workflow is deliberately branch-scoped. It evaluates only runnable skill
-# suites changed by eval-testing relative to main; it never evaluates main as the
-# skill-under-test branch.
+# This workflow is deliberately branch-scoped. Pushes evaluate runnable suites
+# changed by eval-testing relative to main. Manual runs can evaluate either those
+# changed suites or every runnable suite in the selected branch; main is never
+# the skill-under-test branch.
 on:
   push:
     branches:
       - eval-testing
     paths:
       - "skills/**"
-      - ".github/workflows/eval-testing.yml"
   workflow_dispatch:
+    inputs:
+      scope:
+        description: Which skill suites should run?
+        required: true
+        default: all
+        type: choice
+        options:
+          - all
+          - changed
 
 concurrency:
   group: eval-testing-skill-evals
@@ -20,7 +29,7 @@ permissions:
   contents: read
 
 jobs:
-  eval-changed-skills:
+  eval-skill-suites:
     if: github.ref_name == 'eval-testing'
     runs-on: ubuntu-latest
     timeout-minutes: 90
@@ -69,20 +78,60 @@ jobs:
         working-directory: skills-test-runner
         run: bun install --frozen-lockfile
 
-      - name: Detect changed skill suites
+      - name: Select skill suites
         if: steps.harness.outputs.available == 'yes'
         run: |
           set -euo pipefail
           mkdir -p results
-          bun run skills-test-runner/src/github/detect-changed-skills.ts \
-            --repo-root "$GITHUB_WORKSPACE/skills-repo" \
-            --base origin/main \
-            --head HEAD \
-            --skill-root skills \
-            --runner-change-policy skip \
-            --out "$GITHUB_WORKSPACE/results/selection.json" \
-            --paths-only "$GITHUB_WORKSPACE/results/suite-paths.txt"
+
+          : > results/non-runnable-skills.txt
+          for skill_dir in skills-repo/skills/*; do
+            [ -f "$skill_dir/SKILL.md" ] || continue
+            if [ ! -f "$skill_dir/evals/evals.json" ]; then
+              printf '%s\n' "${skill_dir#skills-repo/}" >> results/non-runnable-skills.txt
+            fi
+          done
+          sort -u -o results/non-runnable-skills.txt results/non-runnable-skills.txt
+
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.scope }}" = "all" ]; then
+            find skills-repo/skills -mindepth 3 -maxdepth 3 \
+              -path '*/evals/evals.json' -type f -print \
+              | sed -e 's#^skills-repo/##' -e 's#/evals/evals.json$##' \
+              | sort -u > results/suite-paths.txt
+
+            jq -Rn '
+              [inputs | select(length > 0)] as $suites |
+              {
+                status: (if ($suites | length) > 0 then "selected" else "skipped" end),
+                skillRoots: ["skills"],
+                changedSkills: [],
+                suitePaths: $suites,
+                warnings: [],
+                deletedSkills: [],
+                runnerChanged: false
+              }
+            ' < results/suite-paths.txt > results/selection.json
+          else
+            bun run skills-test-runner/src/github/detect-changed-skills.ts \
+              --repo-root "$GITHUB_WORKSPACE/skills-repo" \
+              --base origin/main \
+              --head HEAD \
+              --skill-root skills \
+              --runner-change-policy skip \
+              --out "$GITHUB_WORKSPACE/results/selection.json" \
+              --paths-only "$GITHUB_WORKSPACE/results/suite-paths.txt"
+          fi
+
           cat results/selection.json
+          if [ -s results/non-runnable-skills.txt ]; then
+            {
+              echo "## Skills without eval suites"
+              echo
+              echo "These skills cannot run until they have an evals/evals.json:"
+              while IFS= read -r skill; do printf -- '- `%s`\n' "$skill"; done < results/non-runnable-skills.txt
+              echo
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
 
       - name: Restore eval cache
         if: steps.harness.outputs.available == 'yes'
@@ -94,7 +143,7 @@ jobs:
             eval-testing-${{ runner.os }}-${{ hashFiles('skills-test-runner/bun.lock') }}-
             eval-testing-${{ runner.os }}-
 
-      - name: Run changed skill suites
+      - name: Run selected skill suites
         if: steps.harness.outputs.available == 'yes'
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
@@ -102,7 +151,7 @@ jobs:
           set -euo pipefail
 
           if [ ! -s results/suite-paths.txt ]; then
-            echo "No changed skills with eval suites were found relative to main." | tee -a "$GITHUB_STEP_SUMMARY"
+            echo "No runnable skill suites were selected." | tee -a "$GITHUB_STEP_SUMMARY"
             exit 0
           fi
 
