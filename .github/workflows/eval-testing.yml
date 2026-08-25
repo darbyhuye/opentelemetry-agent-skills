@@ -1,15 +1,13 @@
 name: Eval-testing Skill Evals
 
-# This workflow is deliberately branch-scoped. Pushes evaluate runnable suites
-# changed by eval-testing relative to main. Manual runs can evaluate either those
-# changed suites or every runnable suite in the selected branch; main is never
-# the skill-under-test branch.
+# This workflow is deliberately branch-scoped. Ordinary pushes evaluate suites
+# affected by that push. A push whose head commit contains [eval-all] evaluates
+# every runnable suite, including an empty commit made only to request a run.
+# Manual dispatch remains available if this workflow eventually reaches main.
 on:
   push:
     branches:
       - eval-testing
-    paths:
-      - "skills/**"
   workflow_dispatch:
     inputs:
       scope:
@@ -80,6 +78,11 @@ jobs:
 
       - name: Select skill suites
         if: steps.harness.outputs.available == 'yes'
+        env:
+          DISPATCH_SCOPE: ${{ inputs.scope || 'changed' }}
+          PUSH_BASE: ${{ github.event.before }}
+          PUSH_HEAD: ${{ github.event.after }}
+          PUSH_RUN_ALL: ${{ contains(github.event.head_commit.message, '[eval-all]') }}
         run: |
           set -euo pipefail
           mkdir -p results
@@ -93,7 +96,14 @@ jobs:
           done
           sort -u -o results/non-runnable-skills.txt results/non-runnable-skills.txt
 
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.scope }}" = "all" ]; then
+          run_all=false
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ] && [ "$DISPATCH_SCOPE" = "all" ]; then
+            run_all=true
+          elif [ "$GITHUB_EVENT_NAME" = "push" ] && [ "$PUSH_RUN_ALL" = "true" ]; then
+            run_all=true
+          fi
+
+          if [ "$run_all" = "true" ]; then
             find skills-repo/skills -mindepth 3 -maxdepth 3 \
               -path '*/evals/evals.json' -type f -print \
               | sed -e 's#^skills-repo/##' -e 's#/evals/evals.json$##' \
@@ -112,10 +122,16 @@ jobs:
               }
             ' < results/suite-paths.txt > results/selection.json
           else
+            base=origin/main
+            head=HEAD
+            if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+              base="$PUSH_BASE"
+              head="$PUSH_HEAD"
+            fi
             bun run skills-test-runner/src/github/detect-changed-skills.ts \
               --repo-root "$GITHUB_WORKSPACE/skills-repo" \
-              --base origin/main \
-              --head HEAD \
+              --base "$base" \
+              --head "$head" \
               --skill-root skills \
               --runner-change-policy skip \
               --out "$GITHUB_WORKSPACE/results/selection.json" \
