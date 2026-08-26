@@ -2,7 +2,7 @@
 
 ## Fatal detector errors can stop startup
 
-Fatal errors from a configured detector **propagate and can prevent the Collector from starting**. For supported network metadata detectors, an unreachable service is fatal when `fail_on_missing_metadata` is enabled; otherwise it produces an empty resource. Only configure detectors for the environment you are in.
+Fatal errors from a configured detector **propagate and can prevent the Collector from starting** after the configured retry budget is exhausted. Since v0.159.0, every detector uses the global `retry` block; retries are enabled by default, with the default session bounded by `timeout: 5s`. For supported network metadata detectors, an unreachable service is fatal when `fail_on_missing_metadata` is enabled; otherwise it produces an empty resource. Only configure detectors for the environment you are in.
 
 Since v0.158.0, the top-level `fail_on_missing_metadata` flag (default `false`) controls supported network metadata detectors: enable it when an unreachable metadata service should be a hard error that participates in processor retry rather than returning an empty resource. The older per-detector fields on `ec2`, `upcloud`, `vultr`, `nova`, `alibaba_ecs`, and `tencent_cvm` are deprecated; migrate to the top-level key. The `oraclecloud` detector uses a fast probe: a failed probe returns an empty resource; if the probe succeeds but the follow-up fetch fails, it errors only when `fail_on_missing_metadata: true` and otherwise returns an empty resource.
 
