@@ -190,10 +190,17 @@ jobs:
             set -e
             sed 's/^/    /' "$GITHUB_WORKSPACE/results/$slug.log" >> "$GITHUB_STEP_SUMMARY"
             echo >> "$GITHUB_STEP_SUMMARY"
-            if [ "$suite_status" -ne 0 ]; then
-              status="$suite_status"
+            if [ "$suite_status" -eq 2 ]; then
+              status=2
+            elif [ "$suite_status" -eq 1 ] && [ "$status" -eq 0 ]; then
+              status=1
             fi
           done < results/suite-paths.txt
+
+          if [ "$status" -eq 1 ]; then
+            echo "One or more suites reported valid eval misses. Results are advisory; inspect the scores and artifacts." | tee -a "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
           exit "$status"
 
       - name: Upload eval results

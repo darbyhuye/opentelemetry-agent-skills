@@ -19,6 +19,11 @@
       "id": "yaml-backreference-redaction",
       "prompt": "For Collector contrib v0.158, write a transform processor that redacts token query-parameter values in span URL attributes while preserving the parameter name. Include how you would verify it.",
       "expected_output": "A guarded span transform using replace_pattern with Collector-safe YAML escaping, a capture that preserves the query-parameter name, and a known-input verification recipe.",
+      "answer_must_not_contain": [
+        "Replace(span.attributes",
+        "\"${1}token=REDACTED\"",
+        "\"$1REDACTED\""
+      ],
       "expectations": [
         "Uses a span-context transform statement with replace_pattern.",
         "Uses the Collector-YAML replacement $${1}REDACTED and does not present $1REDACTED as valid.",
@@ -31,6 +36,9 @@
       "id": "v0156-json-log-parse",
       "prompt": "My Collector is pinned to contrib v0.156. Parse JSON-object log bodies and set parsed fields as log attributes only when the body is actually a JSON object. Do I need an alpha lambda feature gate? Give the transform fragment.",
       "expected_output": "A v0.156-compatible log transform that type- and shape-guards the body, parses a JSON object into attributes, and avoids the unrelated v0.157 lambda feature gate.",
+      "answer_must_not_contain": [
+        "set(log.attributes) ="
+      ],
       "expectations": [
         "Uses log context and guards the body with IsString before parsing.",
         "Uses an object-shape guard that excludes JSON arrays and scalar JSON.",
