@@ -4,34 +4,39 @@
     {
       "id": "routing-metadata-fallback",
       "prompt": "We run OpenTelemetry Collector contrib v0.158. Route OTLP logs by the X-Tenant header to logs/acme, but malformed or missing headers must not lose telemetry. Provide the relevant YAML and explain the failure behavior.",
+      "expected_output": "Executable v0.158 routing YAML that reads receiver metadata from a supported context, sends tenant acme to logs/acme, and preserves malformed or unmatched telemetry through a default pipeline.",
       "expectations": [
-        "Uses executable routing YAML with either otelcol.client.metadata[\"X-Tenant\"][0] for HTTP or otelcol.grpc.metadata[\"x-tenant\"][0] for gRPC.",
-        "Enables include_metadata on the OTLP receiver and notes lowercase keys for gRPC metadata.",
-        "Configures default_pipelines and explains that routing error_mode ignore sends evaluation errors there; without it the payload is dropped.",
+        "Enables include_metadata on the selected OTLP receiver protocol.",
+        "Uses otelcol.client.metadata[\"X-Tenant\"][0] for HTTP or otelcol.grpc.metadata[\"x-tenant\"][0] for gRPC.",
+        "Uses a routing condition that matches tenant value acme and assigns it to pipelines: [logs/acme].",
+        "Configures default_pipelines for logs that do not match or cannot be evaluated.",
+        "Explains that routing error_mode ignore sends evaluation errors to default_pipelines and drops them when no fallback is configured.",
         "Does not use the deprecated routing request context.",
-        "Provides a routing condition matching tenant value acme and assigns the match to pipelines: [logs/acme]."
+        "Uses lowercase metadata keys when the proposed transport is gRPC."
       ]
     },
     {
       "id": "yaml-backreference-redaction",
       "prompt": "For Collector contrib v0.158, write a transform processor that redacts token query-parameter values in span URL attributes while preserving the parameter name. Include how you would verify it.",
+      "expected_output": "A guarded span transform using replace_pattern with Collector-safe YAML escaping, a capture that preserves the query-parameter name, and a known-input verification recipe.",
       "expectations": [
         "Uses a span-context transform statement with replace_pattern.",
         "Uses the Collector-YAML replacement $${1}REDACTED and does not present $1REDACTED as valid.",
-        "Guards a potentially absent or non-string URL input.",
-        "Recommends an end-to-end known-input check such as telemetrygen plus file-exporter output.",
-        "Uses ([?&]token=)[^&]+ or an equivalent capture that preserves the parameter delimiter and name while replacing only its value."
+        "Uses ([?&]token=)[^&]+ or an equivalent capture that preserves the delimiter and parameter name while replacing only the value.",
+        "Guards the URL attribute against an absent or non-string value.",
+        "Recommends a known-input end-to-end check and inspection of Collector output."
       ]
     },
     {
       "id": "v0156-json-log-parse",
       "prompt": "My Collector is pinned to contrib v0.156. Parse JSON-object log bodies and set parsed fields as log attributes only when the body is actually a JSON object. Do I need an alpha lambda feature gate? Give the transform fragment.",
+      "expected_output": "A v0.156-compatible log transform that type- and shape-guards the body, parses a JSON object into attributes, and avoids the unrelated v0.157 lambda feature gate.",
       "expectations": [
-        "Uses log context with ParseJSON and a type-safe IsString guard.",
-        "Restricts parsing to JSON-object-shaped input rather than arbitrary JSON arrays or strings.",
+        "Uses log context and guards the body with IsString before parsing.",
+        "Uses an object-shape guard that excludes JSON arrays and scalar JSON.",
+        "Uses ParseJSON and writes or merges the returned object into log.attributes.",
         "Does not require or use v0.157 alpha lambda converters.",
-        "Treats function availability as release-dependent and keeps the answer compatible with v0.156.",
-        "Writes or merges the parsed JSON object into log.attributes under the object-type guard rather than discarding the parse result."
+        "States that the selected functions must be available in the pinned v0.156 release."
       ]
     }
   ]

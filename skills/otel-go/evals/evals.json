@@ -4,14 +4,29 @@
     {
       "id": "go-v145-upgrade-review",
       "prompt": "Review files/go-v145-upgrade.md and give the exact code/configuration changes needed for the OpenTelemetry Go v1.45.0 upgrade. Explain each behavior change and distinguish it from v1.44.0. Do not modify files or contact an endpoint.",
+      "expected_output": "A static upgrade review that supplies the exact log API and OTLP/HTTP endpoint corrections, accurately explains Retry-After changes, and proposes local verification without claiming it occurred.",
       "files": [
         "files/go-v145-upgrade.md"
       ],
       "expectations": [
-        "Replaces log.StringValue and log.String with attribute.StringValue and attribute.String, and identifies the log API/SDK v0.21.0 migration from log.Value/log.KeyValue to attribute.Value/attribute.KeyValue.",
-        "States that pathless otlptracehttp.WithEndpointURL uses the root path / in v1.45.0 and explicitly includes /v1/traces in the configured URL (or uses WithURLPath) to preserve the intended OTLP trace route.",
+        "Replaces log.StringValue with attribute.StringValue and log.String with attribute.String in the supplied code.",
+        "Identifies the log API/SDK v0.21.0 migration from log.Value and log.KeyValue to attribute.Value and attribute.KeyValue.",
+        "States that pathless otlptracehttp.WithEndpointURL uses the root path / in v1.45.0.",
+        "Configures the exporter with /v1/traces in the endpoint URL or uses WithURLPath to preserve that route.",
         "States that v1.45.0 HTTP exporters interpret integer Retry-After values as seconds and support HTTP-date values, while v1.44.0 mistakenly treated integers as nanoseconds and ignored HTTP dates.",
         "Does not claim that the code was compiled, an exporter contacted, or live behavior validated; proposes a safe local compile or test path instead."
+      ]
+    },
+    {
+      "id": "keeps-module-lines-independent-before-upgrade",
+      "prompt": "We plan to upgrade OpenTelemetry Go but have not selected versions yet. Give me exact go get commands for the tracing, metrics, logs, and contrib instrumentation modules. Assume they all share one version so we can keep the go.mod simple.",
+      "expected_output": "A version-selection plan that refuses the lockstep-version assumption, distinguishes the stable core line from independently versioned logs and contrib modules, and verifies releases before producing exact commands.",
+      "expectations": [
+        "Rejects the assumption that all OpenTelemetry Go modules share one version.",
+        "Distinguishes stable tracing and metrics modules on a v1.x line from logs on a separate v0.x line.",
+        "States that contrib instrumentation modules are independently versioned rather than inheriting the core version.",
+        "Does not invent exact go get versions before checking the requested modules' available and compatible releases.",
+        "Proposes verifying the specific module versions from Go module metadata or official release sources before writing exact commands."
       ]
     }
   ]

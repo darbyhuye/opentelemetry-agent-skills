@@ -181,6 +181,7 @@ jobs:
               --results "$GITHUB_WORKSPACE/results/$slug.json" \
               --cache-dir "$GITHUB_WORKSPACE/.skill-eval-cache" \
               --reps "$EVAL_REPS" \
+              --verbose \
               --harness openrouter \
               --model "$AGENT_MODEL" \
               --judge-model "$JUDGE_MODEL" \
