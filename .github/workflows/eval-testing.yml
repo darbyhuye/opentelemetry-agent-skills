@@ -57,12 +57,30 @@ jobs:
             echo "available=yes" >> "$GITHUB_OUTPUT"
           fi
 
+      # A silent fallback here once ran three full eval sweeps on the default
+      # model while we believed a configured one was under test — warn loudly
+      # so the models that actually ran are never a surprise again.
+      - name: Report model configuration
+        env:
+          EVAL_MODEL_VAR: ${{ vars.OPENROUTER_EVAL_MODEL }}
+          JUDGE_MODEL_VAR: ${{ vars.OPENROUTER_JUDGE_MODEL }}
+        run: |
+          echo "Agent model: \`$AGENT_MODEL\` — Judge model: \`$JUDGE_MODEL\` — Reps: $EVAL_REPS" >> "$GITHUB_STEP_SUMMARY"
+          if [ -z "${EVAL_MODEL_VAR:-}" ]; then
+            echo "::warning::OPENROUTER_EVAL_MODEL is not set on the eval-testing environment; agent sessions fell back to $AGENT_MODEL."
+            echo "⚠️ **OPENROUTER_EVAL_MODEL is unset — agent ran on the fallback \`$AGENT_MODEL\`.**" >> "$GITHUB_STEP_SUMMARY"
+          fi
+          if [ -z "${JUDGE_MODEL_VAR:-}" ]; then
+            echo "::warning::OPENROUTER_JUDGE_MODEL is not set on the eval-testing environment; grading fell back to $JUDGE_MODEL."
+            echo "⚠️ **OPENROUTER_JUDGE_MODEL is unset — grading ran on the fallback \`$JUDGE_MODEL\`.**" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
       - name: Checkout skills-test-runner
         if: steps.harness.outputs.available == 'yes'
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ollygarden/skills-test-runner
-          ref: ecc4d57325071f8e9f1acba91dd04625bc1b0706
+          ref: fb14812e38cc578315880e51c2ace08b1a93205c # prompt-staged-skill-paths: surface staged skill paths to the model
           path: skills-test-runner
           ssh-key: ${{ secrets.SKILLS_TEST_RUNNER_DEPLOY_KEY }}
           persist-credentials: false
