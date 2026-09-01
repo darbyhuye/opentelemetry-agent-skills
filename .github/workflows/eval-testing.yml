@@ -1,5 +1,8 @@
 name: Eval-testing Skill Evals
 
+# Canonical paid evals run from darbyhuye/opentelemetry-agent-skills while this
+# workflow is branch-scoped. The org mirror is non-canonical until the workflow
+# graduates to main and its eval-testing environment has OPENROUTER_API_KEY.
 # This workflow is deliberately branch-scoped. Ordinary pushes evaluate suites
 # affected by that push. A push whose head commit contains [eval-all] evaluates
 # every runnable suite, including an empty commit made only to request a run.
