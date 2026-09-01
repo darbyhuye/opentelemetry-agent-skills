@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ollygarden/skills-test-runner
-          ref: fb14812e38cc578315880e51c2ace08b1a93205c # prompt-staged-skill-paths: surface staged skill paths to the model
+          ref: a7aa2f8edf1d920bb7ee3f191cae3d09de38e23f # merged staged-path fix (skills-test-runner PR #25)
           path: skills-test-runner
           ssh-key: ${{ secrets.SKILLS_TEST_RUNNER_DEPLOY_KEY }}
           persist-credentials: false
